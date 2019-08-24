@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<form id="employee_form" method="post" action="/add_employee_commit">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1>{{title}}</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <table class="table table-bordered" id="employee_table">
+          <tr>
+            <th scope="col">ニックネーム</th>
+          </tr>
+          <tr>
+            <td><input type="text" class="form-control" name="nickname" placeholder="ニックネームを入力してください"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        <h4><button type="submit" class="btn btn-primary">保存</button></h4>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
