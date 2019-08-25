@@ -1,5 +1,4 @@
-from flask import Flask, render_template, g, request, redirect, url_for
-import os
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta, time
 from dateutil.relativedelta import relativedelta
@@ -7,7 +6,7 @@ import calendar
 
 app = Flask(__name__)
 
-db_uri = os.environ.get('DATABASE_URL') or "postgresql://maguro:password@localhost:5432/maguro_market"
+db_uri = "postgresql://maguro:password@localhost:5432/maguro_market"
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -83,81 +82,65 @@ def del_employee_commit():
 
     return redirect("/employee")
 
-@app.route('/show_monthly_shift', methods=['GET', 'POST'])
-def show_monthly_shift():
-    year = request.args.get('year')
-    month = request.args.get('month')
+@app.route('/show_monthly_shift/')
+@app.route('/show_monthly_shift/<string:year_month>')
+def show_monthly_shift(year_month=None):
+    year_month_format = "%Y%m"
 
-    if is_year(year) == False or is_month(month) == False:
-        year = datetime.now().strftime('%Y')
-        month = datetime.now().strftime('%m')
+    if year_month == None:
+        year_month = datetime.now().strftime(year_month_format)
 
-    year = int(year)
-    month = int(month)
-
-    target_month = datetime(year, month, 1)
+    target_month = datetime.strptime(year_month, year_month_format)
     end_target = target_month + relativedelta(months=1, days=-1)
-    monthly_shift = Shift.query.join(Employee, Shift.employee_id==Employee.employee_id).add_columns(Shift.day, Employee.nickname, Shift.start_time, Shift.end_time).filter(Shift.day.between(target_month, end_target)).order_by(Shift.start_time).all()
 
-    pre = target_month + relativedelta(months=-1)
-    pre_year = pre.year
-    pre_month = pre.month
+    pre_year_month = target_month + relativedelta(months=-1)
 
-    next = target_month + relativedelta(months=1)
-    next_year = next.year
-    next_month = next.month
+    next_year_month = target_month + relativedelta(months=1)
 
-    monthly_calendar = calendar.Calendar(6).monthdatescalendar(year, month)
+    monthly_shift = Shift.query.join(Employee, Shift.employee_id==Employee.employee_id) \
+                    .add_columns(Shift.day, Employee.nickname, Shift.start_time, Shift.end_time) \
+                    .filter(Shift.day.between(target_month, end_target)).order_by(Shift.start_time).all()
 
-    return render_template('monthly_shift.html', title='月間シフト', year=year, month=month, pre_year=pre_year, pre_month=pre_month, next_year=next_year, next_month=next_month, monthly_cal=monthly_calendar, monthly_shift=monthly_shift)
+    monthly_calendar = calendar.Calendar(6).monthdatescalendar(target_month.year, target_month.month)
 
-@app.route('/show_daily_shift', methods=['GET', 'POST'])
-def show_daily_shift():
-    year = request.args.get('year')
-    month = request.args.get('month')
-    date = request.args.get('date')
+    return render_template('monthly_shift.html', title='月間シフト', target_month=target_month, \
+                            pre_year_month=pre_year_month, next_year_month=next_year_month, \
+                            monthly_cal=monthly_calendar, monthly_shift=monthly_shift)
 
-    if is_year(year) == False or is_month(month) == False or is_date(date) == False:
-        year = datetime.now().strftime('%Y')
-        month = datetime.now().strftime('%m')
-        date = datetime.now().strftime('%d')
+@app.route('/show_daily_shift/')
+@app.route('/show_daily_shift/<string:date>')
+def show_daily_shift(date=None):
+    date_format = "%Y%m%d"
 
-    year = int(year)
-    month = int(month)
-    date = int(date)
+    if date == None:
+        date = datetime.now().strftime(date_format)
 
-    target_date = datetime(year, month, date)
-    daily_shift = Shift.query.join(Employee, Shift.employee_id==Employee.employee_id).add_columns(Shift.day, Employee.employee_id, Employee.nickname, Shift.start_time, Shift.end_time).filter(Shift.day==target_date).order_by(Shift.start_time, Employee.employee_id).all()
+    target_date = datetime.strptime(date, date_format)
 
-    pre = target_date + timedelta(days=-1)
-    pre_year = pre.year
-    pre_month = pre.month
-    pre_date = pre.day
+    pre_date = target_date + timedelta(days=-1)
 
-    next = target_date + timedelta(days=1)
-    next_year = next.year
-    next_month = next.month
-    next_date = next.day
+    next_date = target_date + timedelta(days=1)
 
-    return render_template('daily_shift.html', title='当日のシフト', year=year, month=month, date=date, pre_year=pre_year, pre_month=pre_month, pre_date=pre_date, next_year=next_year, next_month=next_month, next_date=next_date, daily_shift=daily_shift)
+    daily_shift = Shift.query.join(Employee, Shift.employee_id==Employee.employee_id) \
+                .add_columns(Shift.day, Employee.employee_id, Employee.nickname, Shift.start_time, Shift.end_time) \
+                .filter(Shift.day==target_date).order_by(Shift.start_time, Employee.employee_id).all()
 
-@app.route('/add_daily_shift')
-def add_daily_shift():
-    year = request.args.get('year')
-    month = request.args.get('month')
-    date = request.args.get('date')
+    return render_template('daily_shift.html', title='当日のシフト', target_date=target_date, \
+                            pre_date=pre_date, next_date=next_date, daily_shift=daily_shift)
 
-    if is_year(year) == False or is_month(month) == False or is_date(date) == False:
-        year = datetime.now().strftime('%Y')
-        month = datetime.now().strftime('%m')
-        date = datetime.now().strftime('%d')
+@app.route('/add_daily_shift/')
+@app.route('/add_daily_shift/<string:date>')
+def add_daily_shift(date=None):
+    date_format = "%Y%m%d"
 
-    year = int(year)
-    month = int(month)
-    date = int(date)
+    if date == None:
+        date = datetime.now().strftime(date_format)
+
+    target_date = datetime.strptime(date, date_format)
 
     employees = Employee.query.order_by(Employee.employee_id).all()
-    return render_template('add_daily_shift.html', title='シフト追加', year=year, month=month, date=date, employees=employees)
+    return render_template('add_daily_shift.html', title='シフト追加', year=target_date.year, \
+                            month=target_date.month, date=target_date.day, employees=employees)
 
 @app.route('/add_daily_shift_commit', methods=['POST'])
 def add_daily_shift_commit():
@@ -186,7 +169,7 @@ def add_daily_shift_commit():
     db.session.add(shift)
     db.session.commit()
 
-    redirect_uri = url_for('show_daily_shift', year=year, month=month, date=date)
+    redirect_uri = url_for('show_daily_shift', date=target_date.strftime('%Y%m%d'))
     return redirect(redirect_uri)
 
 @app.route('/del_daily_shift', methods=['POST'])
@@ -208,45 +191,9 @@ def del_daily_shift():
     redirect_uri = url_for('show_daily_shift', year=year, month=month, date=date)
     return redirect(redirect_uri)
 
-def is_year(year):
-
-    if year is None:
-        return False
-
-    if year.isdecimal() == False:
-        return False
-
-    return True
-
-def is_month(month):
-
-    if month is None:
-        return False
-
-    try:
-        int(month)
-    except Exception as e:
-        return False
-
-    if int(month) < 1 or int(month) > 12:
-        return False
-
-    return True
-
-def is_date(date):
-
-    if date is None:
-        return False
-
-    try:
-        int(date)
-    except Exception as e:
-        return False
-
-    if int(date) < 1 or int(date) > 31:
-        return False
-
-    return True
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
 
 if __name__ == '__main__':
     app.run()

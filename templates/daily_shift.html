@@ -3,14 +3,14 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <h1 class="text-center">{{year}}年{{month}}月{{date}}日のシフト</h1>
+        <h1 class="text-center">{{target_date.strftime('%Y')}}年{{target_date.strftime('%m')}}月{{target_date.strftime('%d')}}日のシフト</h1>
       </div>
     </div>
     <div class="row">
       <div class="col text-center">
         <h3>
-          <a class="badge badge-primary" href="/show_monthly_shift?year={{year}}&month={{month}}">
-            {{year}}年{{month}}月
+          <a class="badge badge-primary" href="/show_monthly_shift/{{target_date.strftime('%Y%m')}}">
+            {{target_date.strftime('%Y')}}年{{target_date.strftime('%m')}}月
           </a>
         </h3>
       </div>
@@ -18,15 +18,15 @@
     <div class="row">
       <div class="col">
         <h3>
-          <a class="badge badge-primary" href="/show_daily_shift?year={{pre_year}}&month={{pre_month}}&date={{pre_date}}">
-            ＜＜{{pre_year}}年{{pre_month}}月{{pre_date}}日
+          <a class="badge badge-primary" href="/show_daily_shift/{{pre_date.strftime('%Y%m%d')}}">
+            ＜＜{{pre_date.strftime('%Y')}}年{{pre_date.strftime('%m')}}月{{pre_date.strftime('%d')}}日
           </a>
         </h3>
       </div>
       <div class="col text-right">
         <h3>
-          <a class="badge badge-primary" href="/show_daily_shift?year={{next_year}}&month={{next_month}}&date={{next_date}}">
-            {{next_year}}年{{next_month}}月{{next_date}}日＞＞
+          <a class="badge badge-primary" href="/show_daily_shift/{{next_date.strftime('%Y%m%d')}}">
+            {{next_date.strftime('%Y')}}年{{next_date.strftime('%m')}}月{{next_date.strftime('%d')}}日＞＞
           </a>
         </h3>
       </div>
@@ -65,7 +65,7 @@
     </div>
     <div class="row">
       <div class="col text-right">
-        <h4><a href="/add_daily_shift?year={{year}}&month={{month}}&date={{date}}" class="btn btn-primary">追加</a></h4>
+        <h4><a href="/add_daily_shift/{{target_date.strftime('%Y%m%d')}}" class="btn btn-primary">追加</a></h4>
       </div>
     </div>
   </div>

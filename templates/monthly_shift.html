@@ -3,15 +3,15 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <h1 class="text-center">{{year}}年{{month}}月のシフト</h1>
+        <h1 class="text-center">{{target_month.strftime('%Y')}}年{{target_month.strftime('%m')}}月のシフト</h1>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <h3><a class="badge badge-primary" href="/show_monthly_shift?year={{pre_year}}&month={{pre_month}}">{{pre_year}}年{{pre_month}}月</a></h3>
+        <h3><a class="badge badge-primary" href="/show_monthly_shift/{{pre_year_month.strftime('%Y%m')}}">{{pre_year_month.strftime('%Y')}}年{{pre_year_month.strftime('%m')}}月</a></h3>
       </div>
       <div class="col text-right">
-        <h3><a class="badge badge-primary" href="/show_monthly_shift?year={{next_year}}&month={{next_month}}">{{next_year}}年{{next_month}}月</a></h3>
+        <h3><a class="badge badge-primary" href="/show_monthly_shift/{{next_year_month.strftime('%Y%m')}}">{{next_year_month.strftime('%Y')}}年{{next_year_month.strftime('%m')}}月</a></h3>
       </div>
     </div>
     <div class="row">
@@ -29,7 +29,7 @@
         <tr>
           {% for day in week %}
           <td>
-            <h3><a href="/show_daily_shift?year={{day.strftime('%Y')}}&month={{day.strftime('%m')}}&date={{day.strftime('%d')}}">{{day.strftime('%d')}}</a></h3>
+            <h3><a href="/show_daily_shift/{{day.strftime('%Y%m%d')}}">{{day.strftime('%d')}}</a></h3>
             {% for shift in monthly_shift %}
               {% if shift.day == day %}
                 <h4><span class="badge badge-light">{{shift.nickname}}</h4>
