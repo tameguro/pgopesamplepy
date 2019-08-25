@@ -49,9 +49,7 @@
             <form method="post" action="/del_daily_shift">
               <button type="submit" class="btn btn-danger" id="delBtn">削除</button>
               <input type="hidden" name="del_id" value="{{shift.employee_id}}">
-              <input type="hidden" name="year" value="{{year}}">
-              <input type="hidden" name="month" value="{{month}}">
-              <input type="hidden" name="date" value="{{date}}">
+              <input type="hidden" name="target_date" value="{{target_date.strftime('%Y%m%d')}}">
             </form>
           </td>
         <tr>

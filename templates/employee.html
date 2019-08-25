@@ -8,7 +8,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <table class="table table-bordered" id="employee_table">
+        <table class="table table-bordered">
           <tr>
             <th scope="col" style="width:40%;">従業員ID</th>
             <th scope="col" style="width:40%;">ニックネーム</th>
@@ -16,8 +16,8 @@
           </tr>
           {% for employee in employees %}
             <tr>
-              <td>{{employee.employee_id|safe}}</td>
-              <td>{{employee.nickname|safe}}</td>
+              <td>{{employee.employee_id}}</td>
+              <td>{{employee.nickname}}</td>
               <td>
                 <form method="post" action="#">
                   <button type="button" class="btn btn-success" name="submit_button" data-action="/edit_employee">修正</button>

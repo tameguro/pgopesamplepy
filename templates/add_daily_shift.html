@@ -4,7 +4,7 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <h1 class="text-center">{{year}}年{{month}}月{{date}}日のシフトに追加</h1>
+        <h1 class="text-center">{{target_date.strftime('%Y')}}年{{target_date.strftime('%m')}}月{{target_date.strftime('%d')}}日のシフトに追加</h1>
       </div>
     </div>
     <div class="row">
@@ -17,25 +17,25 @@
           <td>
             <select class="form-control" name="start_time_hour">
               {% for sh in range(0,24) %}
-                <option value="{{'%02d'|format(sh)}}">{{'%02d'|format(sh)}}</option>
+                <option value="{{sh}}">{{'%02d'|format(sh)}}</option>
               {% endfor %}
             </select>
             :
             <select class="form-control" name="start_time_minute">
               {% for sm in range(0,60) %}
-                <option value="{{'%02d'|format(sm)}}">{{'%02d'|format(sm)}}</option>
+                <option value="{{sm}}">{{'%02d'|format(sm)}}</option>
               {% endfor %}
             </select>
             &nbsp;-&nbsp;
             <select class="form-control" name="end_time_hour">
               {% for eh in range(0,24) %}
-                <option value="{{'%02d'|format(eh)}}">{{'%02d'|format(eh)}}</option>
+                <option value="{{eh}}">{{'%02d'|format(eh)}}</option>
               {% endfor %}
             </select>
             :
             <select class="form-control" name="end_time_minute">
               {% for em in range(0,60) %}
-                <option value="{{'%02d'|format(em)}}">{{'%02d'|format(em)}}</option>
+                <option value="{{em}}">{{'%02d'|format(em)}}</option>
               {% endfor %}
             </select>
           </td>
@@ -51,10 +51,8 @@
     </div>
     <div class="row">
       <div class="col text-right">
-        <h4><button type="submit" class="btn btn-primary">保存</buttonn></h4>
-        <input type="hidden" name="year" value="{{year}}">
-        <input type="hidden" name="month" value="{{month}}">
-        <input type="hidden" name="date" value="{{date}}">
+        <h4><button type="submit" class="btn btn-primary">保存</button></h4>
+        <input type="hidden" name="target_date" value="{{target_date.strftime('%Y%m%d')}}">
       </div>
     </div>
   </div>

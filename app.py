@@ -4,6 +4,9 @@ from datetime import datetime, timedelta, time
 from dateutil.relativedelta import relativedelta
 import calendar
 
+YEAR_MONTH_FORMAT = "%Y%m"
+DATE_FORMAT = "%Y%m%d"
+
 app = Flask(__name__)
 
 db_uri = "postgresql://maguro:password@localhost:5432/maguro_market"
@@ -39,7 +42,11 @@ def add_employee():
 @app.route('/add_employee_commit', methods=['POST'])
 def add_employee_commit():
     nickname = request.form['nickname']
+
     max_id_num = db.session.query(db.func.max(Employee.employee_id)).scalar()
+    if max_id_num == None:
+        max_id_num = 0
+
     employee_id = str(int(max_id_num) + 1).zfill(6)
     employee = Employee(employee_id=employee_id, nickname=nickname)
     db.session.add(employee)
@@ -85,12 +92,10 @@ def del_employee_commit():
 @app.route('/show_monthly_shift/')
 @app.route('/show_monthly_shift/<string:year_month>')
 def show_monthly_shift(year_month=None):
-    year_month_format = "%Y%m"
-
     if year_month == None:
-        year_month = datetime.now().strftime(year_month_format)
+        year_month = datetime.now().strftime(YEAR_MONTH_FORMAT)
 
-    target_month = datetime.strptime(year_month, year_month_format)
+    target_month = datetime.strptime(year_month, YEAR_MONTH_FORMAT)
     end_target = target_month + relativedelta(months=1, days=-1)
 
     pre_year_month = target_month + relativedelta(months=-1)
@@ -110,12 +115,10 @@ def show_monthly_shift(year_month=None):
 @app.route('/show_daily_shift/')
 @app.route('/show_daily_shift/<string:date>')
 def show_daily_shift(date=None):
-    date_format = "%Y%m%d"
-
     if date == None:
-        date = datetime.now().strftime(date_format)
+        date = datetime.now().strftime(DATE_FORMAT)
 
-    target_date = datetime.strptime(date, date_format)
+    target_date = datetime.strptime(date, DATE_FORMAT)
 
     pre_date = target_date + timedelta(days=-1)
 
@@ -131,39 +134,26 @@ def show_daily_shift(date=None):
 @app.route('/add_daily_shift/')
 @app.route('/add_daily_shift/<string:date>')
 def add_daily_shift(date=None):
-    date_format = "%Y%m%d"
-
     if date == None:
-        date = datetime.now().strftime(date_format)
+        date = datetime.now().strftime(DATE_FORMAT)
 
-    target_date = datetime.strptime(date, date_format)
+    target_date = datetime.strptime(date, DATE_FORMAT)
 
     employees = Employee.query.order_by(Employee.employee_id).all()
-    return render_template('add_daily_shift.html', title='シフト追加', year=target_date.year, \
-                            month=target_date.month, date=target_date.day, employees=employees)
+    return render_template('add_daily_shift.html', title='シフト追加', target_date=target_date, employees=employees)
 
 @app.route('/add_daily_shift_commit', methods=['POST'])
 def add_daily_shift_commit():
-    year = request.form['year']
-    month = request.form['month']
-    date = request.form['date']
+    date = request.form['target_date']
     start_time_hour = request.form['start_time_hour']
     start_time_minute = request.form['start_time_minute']
     end_time_hour = request.form['end_time_hour']
     end_time_minute = request.form['end_time_minute']
     employee_id = request.form['employee']
 
-    year = int(year)
-    month = int(month)
-    date = int(date)
-    start_time_hour = int(start_time_hour)
-    start_time_minute = int(start_time_minute)
-    end_time_hour = int(end_time_hour)
-    end_time_minute = int(end_time_minute)
-
-    target_date = datetime(year, month, date)
-    start_time = time(start_time_hour, start_time_minute, 0)
-    end_time = time(end_time_hour, end_time_minute, 0)
+    target_date = datetime.strptime(date, DATE_FORMAT)
+    start_time = time(int(start_time_hour), int(start_time_minute), 0)
+    end_time = time(int(end_time_hour), int(end_time_minute), 0)
 
     shift = Shift(day=target_date, employee_id=employee_id, start_time=start_time, end_time=end_time)
     db.session.add(shift)
@@ -174,21 +164,15 @@ def add_daily_shift_commit():
 
 @app.route('/del_daily_shift', methods=['POST'])
 def del_daily_shift():
-    year = request.form['year']
-    month = request.form['month']
-    date = request.form['date']
+    date = request.form['target_date']
     employee_id = request.form['del_id']
 
-    year = int(year)
-    month = int(month)
-    date = int(date)
-
-    target_date = datetime(year, month, date)
+    target_date = datetime.strptime(date, DATE_FORMAT)
 
     db.session.query(Shift).filter(Shift.day==target_date, Shift.employee_id==employee_id).delete()
     db.session.commit()
 
-    redirect_uri = url_for('show_daily_shift', year=year, month=month, date=date)
+    redirect_uri = url_for('show_daily_shift', date=date)
     return redirect(redirect_uri)
 
 @app.errorhandler(404)
