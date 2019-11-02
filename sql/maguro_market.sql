@@ -1,14 +1,22 @@
-create table employees (
-	employee_id char(6) not null,
-	nickname text not null,
-	primary key (employee_id)
-);
+CREATE ROLE maguro LOGIN PASSWORD 'password';
 
-create table shifts (
-	day date not null,
-	employee_id char(6) not null,
-	start_time time not null,
-	end_time time not null,
-	primary key (day, employee_id)
+CREATE DATABASE maguro_market OWNER maguro;
+
+\c maguro_market
+
+CREATE TABLE employees (
+	employee_id CHAR(6) NOT NULL,
+	nickname TEXT NOT NULL,
+	PRIMARY KEY (employee_id)
+);
+ALTER TABLE employees OWNER TO maguro;
+
+CREATE TABLE shifts (
+	day DATE NOT NULL,
+	employee_id CHAR(6) NOT NULL,
+	start_time TIME NOT NULL,
+	end_time TIME NOT NULL,
+	PRIMARY KEY (day, employee_id)
 );
 ALTER TABLE shifts ADD FOREIGN KEY (employee_id) REFERENCES employees (employee_id);
+ALTER TABLE shifts OWNER TO maguro;
