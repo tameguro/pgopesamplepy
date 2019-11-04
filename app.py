@@ -28,7 +28,7 @@ class Shift(db.Model):
 
 @app.route('/')
 def top():
-    return render_template('index.html', title='従業員シフト入力システム')
+    return render_template('index.html', title='従業員シフト管理システム')
 
 @app.route('/employee')
 def employee_list():
