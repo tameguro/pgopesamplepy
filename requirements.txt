@@ -8,7 +8,7 @@ Flask-SQLAlchemy==2.4.0
 Hamlish-Jinja==0.3.3
 idna==2.8
 itsdangerous==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 Kivy==1.11.1
 kivy-deps.glew==0.1.12
 kivy-deps.sdl2==0.1.22
